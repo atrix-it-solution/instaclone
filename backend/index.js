@@ -9,7 +9,8 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://instaclone-mk86.onrender.com'
+    'https://instaclone-mk86.onrender.com',
+    'https://instagream-login.netlify.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
